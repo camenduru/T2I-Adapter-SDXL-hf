@@ -1,12 +1,12 @@
 ---
-title: T2I Adapter SDXL
-emoji: 👀
+title: T2I-Adapter-SDXL
+emoji: 🚀
 colorFrom: purple
 colorTo: yellow
-sdk: gradio
-sdk_version: 3.42.0
-app_file: app.py
+sdk: docker
 pinned: false
+license: mit
+suggested_hardware: t4-small
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
