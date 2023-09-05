@@ -58,21 +58,21 @@ with gr.Blocks(css="style.css") as demo:
                     minimum=0.1,
                     maximum=30.0,
                     step=0.1,
-                    value=7.5,
+                    value=5,
                 )
                 adapter_conditioning_scale = gr.Slider(
                     label="Adapter Conditioning Scale",
                     minimum=0.5,
                     maximum=1,
                     step=0.1,
-                    value=0.8,
+                    value=1.0,
                 )
                 cond_tau = gr.Slider(
                     label="Fraction of timesteps for which adapter should be applied",
-                    minimum=0.1,
+                    minimum=0.5,
                     maximum=1.0,
                     step=0.1,
-                    value=0.8,
+                    value=1.0,
                 )
                 seed = gr.Slider(
                     label="Seed",
