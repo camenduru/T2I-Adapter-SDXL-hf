@@ -76,7 +76,7 @@ class ZoePreprocessor:
         ).to(device)
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
-        return self.model(image, gamma_corrected=True)
+        return self.model(image, gamma_corrected=True, image_resolution=1024)
 
 
 def get_preprocessor(adapter_name: str) -> Callable[[PIL.Image.Image], PIL.Image.Image]:
