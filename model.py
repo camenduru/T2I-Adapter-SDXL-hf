@@ -162,9 +162,9 @@ class Model:
         prompt: str,
         negative_prompt: str,
         num_inference_steps: int = 30,
-        guidance_scale: float = 7.5,
-        adapter_conditioning_scale: float = 0.8,
-        cond_tau: float = 0.8,
+        guidance_scale: float = 5.0,
+        adapter_conditioning_scale: float = 1.0,
+        cond_tau: float = 1.0,
         seed: int = 0,
         apply_preprocess: bool = True,
     ) -> list[PIL.Image.Image]:

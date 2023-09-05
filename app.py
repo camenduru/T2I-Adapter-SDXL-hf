@@ -58,7 +58,7 @@ with gr.Blocks(css="style.css") as demo:
                     minimum=0.1,
                     maximum=30.0,
                     step=0.1,
-                    value=5,
+                    value=5.0,
                 )
                 adapter_conditioning_scale = gr.Slider(
                     label="Adapter Conditioning Scale",
