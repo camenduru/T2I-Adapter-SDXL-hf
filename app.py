@@ -5,6 +5,7 @@ import random
 
 import gradio as gr
 import numpy as np
+import PIL.Image
 import torch
 
 from model import ADAPTER_NAMES, Model
@@ -24,6 +25,32 @@ def randomize_seed_fn(seed: int, randomize_seed: bool) -> int:
 
 
 model = Model(ADAPTER_NAMES[0])
+
+
+def run(
+    image: PIL.Image.Image,
+    prompt: str,
+    negative_prompt: str,
+    num_inference_steps: int = 30,
+    guidance_scale: float = 5.0,
+    adapter_conditioning_scale: float = 1.0,
+    cond_tau: float = 1.0,
+    seed: int = 0,
+    apply_preprocess: bool = True,
+    progress=gr.Progress(track_tqdm=True),
+) -> list[PIL.Image.Image]:
+    return model.run(
+        image=image,
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        num_inference_steps=num_inference_steps,
+        guidance_scale=guidance_scale,
+        adapter_conditioning_scale=adapter_conditioning_scale,
+        cond_tau=cond_tau,
+        seed=seed,
+        apply_preprocess=apply_preprocess,
+    )
+
 
 with gr.Blocks(css="style.css") as demo:
     gr.Markdown(DESCRIPTION)
@@ -107,7 +134,7 @@ with gr.Blocks(css="style.css") as demo:
         inputs=adapter_name,
         api_name=False,
     ).success(
-        fn=model.run,
+        fn=run,
         inputs=inputs,
         outputs=result,
         api_name=False,
@@ -123,7 +150,7 @@ with gr.Blocks(css="style.css") as demo:
         inputs=adapter_name,
         api_name=False,
     ).success(
-        fn=model.run,
+        fn=run,
         inputs=inputs,
         outputs=result,
         api_name=False,
@@ -139,7 +166,7 @@ with gr.Blocks(css="style.css") as demo:
         inputs=adapter_name,
         api_name=False,
     ).success(
-        fn=model.run,
+        fn=run,
         inputs=inputs,
         outputs=result,
         api_name="run",
