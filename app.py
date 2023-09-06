@@ -31,6 +31,7 @@ def run(
     image: PIL.Image.Image,
     prompt: str,
     negative_prompt: str,
+    adapter_name: str,
     num_inference_steps: int = 30,
     guidance_scale: float = 5.0,
     adapter_conditioning_scale: float = 1.0,
@@ -43,6 +44,7 @@ def run(
         image=image,
         prompt=prompt,
         negative_prompt=negative_prompt,
+        adapter_name=adapter_name,
         num_inference_steps=num_inference_steps,
         guidance_scale=guidance_scale,
         adapter_conditioning_scale=adapter_conditioning_scale,
@@ -116,6 +118,7 @@ with gr.Blocks(css="style.css") as demo:
         image,
         prompt,
         negative_prompt,
+        adapter_name,
         num_inference_steps,
         guidance_scale,
         adapter_conditioning_scale,
@@ -130,10 +133,6 @@ with gr.Blocks(css="style.css") as demo:
         queue=False,
         api_name=False,
     ).then(
-        fn=model.change_adapter,
-        inputs=adapter_name,
-        api_name=False,
-    ).success(
         fn=run,
         inputs=inputs,
         outputs=result,
@@ -146,10 +145,6 @@ with gr.Blocks(css="style.css") as demo:
         queue=False,
         api_name=False,
     ).then(
-        fn=model.change_adapter,
-        inputs=adapter_name,
-        api_name=False,
-    ).success(
         fn=run,
         inputs=inputs,
         outputs=result,
@@ -162,10 +157,6 @@ with gr.Blocks(css="style.css") as demo:
         queue=False,
         api_name=False,
     ).then(
-        fn=model.change_adapter,
-        inputs=adapter_name,
-        api_name=False,
-    ).success(
         fn=run,
         inputs=inputs,
         outputs=result,

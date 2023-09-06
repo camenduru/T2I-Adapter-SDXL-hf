@@ -1,4 +1,6 @@
-from typing import Callable
+import gc
+import os
+from abc import ABC, abstractmethod
 
 import PIL.Image
 import torch
@@ -26,74 +28,149 @@ ADAPTER_NAMES = [
 ]
 
 
-class CannyPreprocessor:
+class Preprocessor(ABC):
+    @abstractmethod
+    def to(self, device: torch.device | str) -> "Preprocessor":
+        pass
+
+    @abstractmethod
+    def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
+        pass
+
+
+class CannyPreprocessor(Preprocessor):
     def __init__(self):
         self.model = CannyDetector()
 
-    def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
-        return self.model(image, detect_resolution=384, image_resolution=1024)
-
-
-class LineartPreprocessor:
-    def __init__(self):
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = LineartDetector.from_pretrained("lllyasviel/Annotators").to(device)
+    def to(self, device: torch.device | str) -> Preprocessor:
+        return self
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return self.model(image, detect_resolution=384, image_resolution=1024)
 
 
-class MidasPreprocessor:
+class LineartPreprocessor(Preprocessor):
     def __init__(self):
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = LineartDetector.from_pretrained("lllyasviel/Annotators")
+
+    def to(self, device: torch.device | str) -> Preprocessor:
+        return self.model.to(device)
+
+    def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
+        return self.model(image, detect_resolution=384, image_resolution=1024)
+
+
+class MidasPreprocessor(Preprocessor):
+    def __init__(self):
         self.model = MidasDetector.from_pretrained(
             "valhalla/t2iadapter-aux-models", filename="dpt_large_384.pt", model_type="dpt_large"
-        ).to(device)
+        )
+
+    def to(self, device: torch.device | str) -> Preprocessor:
+        return self.model.to(device)
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return self.model(image, detect_resolution=512, image_resolution=1024)
 
 
-class PidiNetPreprocessor:
+class PidiNetPreprocessor(Preprocessor):
     def __init__(self):
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = PidiNetDetector.from_pretrained("lllyasviel/Annotators").to(device)
+        self.model = PidiNetDetector.from_pretrained("lllyasviel/Annotators")
+
+    def to(self, device: torch.device | str) -> Preprocessor:
+        return self.model.to(device)
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return self.model(image, detect_resolution=512, image_resolution=1024, apply_filter=True)
 
 
-class RecolorPreprocessor:
+class RecolorPreprocessor(Preprocessor):
+    def to(self, device: torch.device | str) -> Preprocessor:
+        return self
+
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return image.convert("L").convert("RGB")
 
 
-class ZoePreprocessor:
+class ZoePreprocessor(Preprocessor):
     def __init__(self):
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = ZoeDetector.from_pretrained(
             "valhalla/t2iadapter-aux-models", filename="zoed_nk.pth", model_type="zoedepth_nk"
-        ).to(device)
+        )
+
+    def to(self, device: torch.device | str) -> Preprocessor:
+        return self.model.to(device)
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return self.model(image, gamma_corrected=True, image_resolution=1024)
 
 
-def get_preprocessor(adapter_name: str) -> Callable[[PIL.Image.Image], PIL.Image.Image]:
-    if adapter_name == "TencentARC/t2i-adapter-canny-sdxl-1.0":
-        return CannyPreprocessor()
-    elif adapter_name == "TencentARC/t2i-adapter-sketch-sdxl-1.0":
-        return PidiNetPreprocessor()
-    elif adapter_name == "TencentARC/t2i-adapter-lineart-sdxl-1.0":
-        return LineartPreprocessor()
-    elif adapter_name == "TencentARC/t2i-adapter-depth-midas-sdxl-1.0":
-        return MidasPreprocessor()
-    elif adapter_name == "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0":
-        return ZoePreprocessor()
-    elif adapter_name == "TencentARC/t2i-adapter-recolor-sdxl-1.0":
-        return RecolorPreprocessor()
-    else:
-        raise ValueError(f"Adapter name must be one of {ADAPTER_NAMES}")
+PRELOAD_PREPROCESSORS_IN_GPU_MEMORY = os.getenv("PRELOAD_PREPROCESSORS_IN_GPU_MEMORY", "1") == "1"
+PRELOAD_PREPROCESSORS_IN_CPU_MEMORY = os.getenv("PRELOAD_PREPROCESSORS_IN_CPU_MEMORY", "0") == "1"
+if PRELOAD_PREPROCESSORS_IN_GPU_MEMORY:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    preprocessors_gpu: dict[str, Preprocessor] = {
+        "TencentARC/t2i-adapter-canny-sdxl-1.0": CannyPreprocessor().to(device),
+        "TencentARC/t2i-adapter-sketch-sdxl-1.0": PidiNetPreprocessor().to(device),
+        "TencentARC/t2i-adapter-lineart-sdxl-1.0": LineartPreprocessor().to(device),
+        "TencentARC/t2i-adapter-depth-midas-sdxl-1.0": MidasPreprocessor().to(device),
+        "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0": ZoePreprocessor().to(device),
+        "TencentARC/t2i-adapter-recolor-sdxl-1.0": RecolorPreprocessor().to(device),
+    }
+
+    def get_preprocessor(adapter_name: str) -> Preprocessor:
+        return preprocessors_gpu[adapter_name]
+
+elif PRELOAD_PREPROCESSORS_IN_CPU_MEMORY:
+    preprocessors_cpu: dict[str, Preprocessor] = {
+        "TencentARC/t2i-adapter-canny-sdxl-1.0": CannyPreprocessor(),
+        "TencentARC/t2i-adapter-sketch-sdxl-1.0": PidiNetPreprocessor(),
+        "TencentARC/t2i-adapter-lineart-sdxl-1.0": LineartPreprocessor(),
+        "TencentARC/t2i-adapter-depth-midas-sdxl-1.0": MidasPreprocessor(),
+        "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0": ZoePreprocessor(),
+        "TencentARC/t2i-adapter-recolor-sdxl-1.0": RecolorPreprocessor(),
+    }
+
+    def get_preprocessor(adapter_name: str) -> Preprocessor:
+        return preprocessors_cpu[adapter_name]
+
+else:
+
+    def get_preprocessor(adapter_name: str) -> Preprocessor:
+        if adapter_name == "TencentARC/t2i-adapter-canny-sdxl-1.0":
+            return CannyPreprocessor()
+        elif adapter_name == "TencentARC/t2i-adapter-sketch-sdxl-1.0":
+            return PidiNetPreprocessor()
+        elif adapter_name == "TencentARC/t2i-adapter-lineart-sdxl-1.0":
+            return LineartPreprocessor()
+        elif adapter_name == "TencentARC/t2i-adapter-depth-midas-sdxl-1.0":
+            return MidasPreprocessor()
+        elif adapter_name == "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0":
+            return ZoePreprocessor()
+        elif adapter_name == "TencentARC/t2i-adapter-recolor-sdxl-1.0":
+            return RecolorPreprocessor()
+        else:
+            raise ValueError(f"Adapter name must be one of {ADAPTER_NAMES}")
+
+    def download_all_preprocessors():
+        for adapter_name in ADAPTER_NAMES:
+            get_preprocessor(adapter_name)
+        gc.collect()
+
+    download_all_preprocessors()
+
+
+def download_all_adapters():
+    for adapter_name in ADAPTER_NAMES:
+        T2IAdapter.from_pretrained(
+            adapter_name,
+            torch_dtype=torch.float16,
+            varient="fp16",
+        )
+    gc.collect()
+
+
+download_all_adapters()
 
 
 class Model:
@@ -103,11 +180,12 @@ class Model:
         if adapter_name not in ADAPTER_NAMES:
             raise ValueError(f"Adapter name must be one of {ADAPTER_NAMES}")
 
+        self.preprocessor_name = adapter_name
         self.adapter_name = adapter_name
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if torch.cuda.is_available():
-            self.preprocessor = get_preprocessor(adapter_name)
+            self.preprocessor = get_preprocessor(adapter_name).to(self.device)
 
             model_id = "stabilityai/stable-diffusion-xl-base-1.0"
             adapter = T2IAdapter.from_pretrained(
@@ -127,27 +205,39 @@ class Model:
             ).to(self.device)
             self.pipe.enable_xformers_memory_efficient_attention()
         else:
+            self.preprocessor = None  # type: ignore
             self.pipe = None
 
+    def change_preprocessor(self, adapter_name: str) -> None:
+        if adapter_name not in ADAPTER_NAMES:
+            raise ValueError(f"Adapter name must be one of {ADAPTER_NAMES}")
+        if adapter_name == self.preprocessor_name:
+            return
+
+        if PRELOAD_PREPROCESSORS_IN_GPU_MEMORY:
+            pass
+        elif PRELOAD_PREPROCESSORS_IN_CPU_MEMORY:
+            self.preprocessor.to("cpu")
+        else:
+            del self.preprocessor
+        self.preprocessor = get_preprocessor(adapter_name).to(self.device)
+        self.preprocessor_name = adapter_name
+        gc.collect()
+        torch.cuda.empty_cache()
+
     def change_adapter(self, adapter_name: str) -> None:
-        if not torch.cuda.is_available():
-            raise RuntimeError("This demo does not work on CPU.")
         if adapter_name not in ADAPTER_NAMES:
             raise ValueError(f"Adapter name must be one of {ADAPTER_NAMES}")
         if adapter_name == self.adapter_name:
             return
-
-        self.preprocessor = None  # type: ignore
-        torch.cuda.empty_cache()
-        self.preprocessor = get_preprocessor(adapter_name)
-
-        self.pipe.adapter = None
-        torch.cuda.empty_cache()
         self.pipe.adapter = T2IAdapter.from_pretrained(
             adapter_name,
             torch_dtype=torch.float16,
             varient="fp16",
         ).to(self.device)
+        self.adapter_name = adapter_name
+        gc.collect()
+        torch.cuda.empty_cache()
 
     def resize_image(self, image: PIL.Image.Image) -> PIL.Image.Image:
         w, h = image.size
@@ -161,6 +251,7 @@ class Model:
         image: PIL.Image.Image,
         prompt: str,
         negative_prompt: str,
+        adapter_name: str,
         num_inference_steps: int = 30,
         guidance_scale: float = 5.0,
         adapter_conditioning_scale: float = 1.0,
@@ -168,11 +259,16 @@ class Model:
         seed: int = 0,
         apply_preprocess: bool = True,
     ) -> list[PIL.Image.Image]:
+        if not torch.cuda.is_available():
+            raise RuntimeError("This demo does not work on CPU.")
         if num_inference_steps > self.MAX_NUM_INFERENCE_STEPS:
             raise ValueError(f"Number of steps must be less than {self.MAX_NUM_INFERENCE_STEPS}")
 
         # Resize image to avoid OOM
         image = self.resize_image(image)
+
+        self.change_preprocessor(adapter_name)
+        self.change_adapter(adapter_name)
 
         if apply_preprocess:
             image = self.preprocessor(image)
