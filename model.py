@@ -203,7 +203,7 @@ class Model:
             ).to(self.device)
             self.pipe.enable_xformers_memory_efficient_attention()
             self.pipe.load_lora_weights("stabilityai/stable-diffusion-xl-base-1.0", weight_name="sd_xl_offset_example-lora_1.0.safetensors")
-            pipe.fuse_lora(lora_scale=0.4)
+            self.pipe.fuse_lora(lora_scale=0.4)
         else:
             self.preprocessor = None  # type: ignore
             self.pipe = None
