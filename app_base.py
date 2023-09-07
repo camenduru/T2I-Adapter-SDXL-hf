@@ -6,12 +6,61 @@ import PIL.Image
 from model import ADAPTER_NAMES, Model
 from utils import MAX_SEED, randomize_seed_fn
 
+style_list = [
+    {
+        "name": "Cinematic",
+        "prompt": "cinematic still {prompt} . emotional, harmonious, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
+        "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured",
+    },
+    {
+        "name": "3D Model",
+        "prompt": "professional 3d model {prompt} . octane render, highly detailed, volumetric, dramatic lighting",
+        "negative_prompt": "ugly, deformed, noisy, low poly, blurry, painting",
+    },
+    {
+        "name": "Anime",
+        "prompt": "anime artwork {prompt} . anime style, key visual, vibrant, studio anime,  highly detailed",
+        "negative_prompt": "photo, deformed, black and white, realism, disfigured, low contrast",
+    },
+    {
+        "name": "Digital Art",
+        "prompt": "concept art {prompt} . digital artwork, illustrative, painterly, matte painting, highly detailed",
+        "negative_prompt": "photo, photorealistic, realism, ugly",
+    },
+    {
+        "name": "Photographic",
+        "prompt": "cinematic photo {prompt} . 35mm photograph, film, bokeh, professional, 4k, highly detailed",
+        "negative_prompt": "drawing, painting, crayon, sketch, graphite, impressionist, noisy, blurry, soft, deformed, ugly",
+    },
+    {
+        "name": "Pixel art",
+        "prompt": "pixel-art {prompt} . low-res, blocky, pixel art style, 8-bit graphics",
+        "negative_prompt": "sloppy, messy, blurry, noisy, highly detailed, ultra textured, photo, realistic",
+    },
+    {
+        "name": "Fantasy art",
+        "prompt": "ethereal fantasy concept art of  {prompt} . magnificent, celestial, ethereal, painterly, epic, majestic, magical, fantasy art, cover art, dreamy",
+        "negative_prompt": "photographic, realistic, realism, 35mm film, dslr, cropped, frame, text, deformed, glitch, noise, noisy, off-center, deformed, cross-eyed, closed eyes, bad anatomy, ugly, disfigured, sloppy, duplicate, mutated, black and white",
+    },
+]
+
+styles = {k["name"]: (k["prompt"], k["negative_prompt"]) for k in style_list}
+default_style_name = "Photographic"
+default_style = styles[default_style_name]
+style_names = list(styles.keys())
+
+
+def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
+    p, n = styles.get(style_name, default_style)
+    return p.replace("{prompt}", positive), n + negative
+
 
 def create_demo(model: Model) -> gr.Blocks:
     def run(
         image: PIL.Image.Image,
         prompt: str,
         negative_prompt: str,
+        style_name: str = default_style_name,
         adapter_name: str,
         num_inference_steps: int = 30,
         guidance_scale: float = 5.0,
@@ -21,6 +70,8 @@ def create_demo(model: Model) -> gr.Blocks:
         apply_preprocess: bool = True,
         progress=gr.Progress(track_tqdm=True),
     ) -> list[PIL.Image.Image]:
+        prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
+        
         return model.run(
             image=image,
             prompt=prompt,
@@ -48,6 +99,7 @@ def create_demo(model: Model) -> gr.Blocks:
                         label="Negative prompt",
                         value="anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured",
                     )
+                    style = gr.Dropdown(choices=style_names, value=default_style_name, label="Style")
                     num_inference_steps = gr.Slider(
                         label="Number of steps",
                         minimum=1,
@@ -91,6 +143,7 @@ def create_demo(model: Model) -> gr.Blocks:
             image,
             prompt,
             negative_prompt,
+            style,
             adapter_name,
             num_inference_steps,
             guidance_scale,
