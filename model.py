@@ -193,13 +193,11 @@ class Model:
                 torch_dtype=torch.float16,
                 varient="fp16",
             ).to(self.device)
-            euler_a = EulerAncestralDiscreteScheduler.from_pretrained(model_id, subfolder="scheduler")
-            vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16)
             self.pipe = StableDiffusionXLAdapterPipeline.from_pretrained(
                 model_id,
-                vae=vae,
+                vae=AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16),
                 adapter=adapter,
-                scheduler=euler_a,
+                scheduler=EulerAncestralDiscreteScheduler.from_pretrained(model_id, subfolder="scheduler"),
                 torch_dtype=torch.float16,
                 variant="fp16",
             ).to(self.device)
