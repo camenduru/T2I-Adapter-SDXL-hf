@@ -8,12 +8,6 @@ from utils import MAX_SEED, randomize_seed_fn, styles, style_names, apply_style
 
 
 default_style_name = "Photographic"
-default_style = styles[default_style_name]
-
-
-def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
-    p, n = styles.get(style_name, default_style)
-    return p.replace("{prompt}", positive), n + negative
 
 
 def create_demo(model: Model) -> gr.Blocks:
