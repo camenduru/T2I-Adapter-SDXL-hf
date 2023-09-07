@@ -18,6 +18,64 @@ from diffusers import (
     T2IAdapter,
 )
 
+SD_XL_BASE_RATIOS = {
+    "0.5": (704, 1408),
+    "0.52": (704, 1344),
+    "0.57": (768, 1344),
+    "0.6": (768, 1280),
+    "0.68": (832, 1216),
+    "0.72": (832, 1152),
+    "0.78": (896, 1152),
+    "0.82": (896, 1088),
+    "0.88": (960, 1088),
+    "0.94": (960, 1024),
+    "1.0": (1024, 1024),
+    "1.07": (1024, 960),
+    "1.13": (1088, 960),
+    "1.21": (1088, 896),
+    "1.29": (1152, 896),
+    "1.38": (1152, 832),
+    "1.46": (1216, 832),
+    "1.67": (1280, 768),
+    "1.75": (1344, 768),
+    "1.91": (1344, 704),
+    "2.0": (1408, 704),
+    "2.09": (1472, 704),
+    "2.4": (1536, 640),
+    "2.5": (1600, 640),
+    "2.89": (1664, 576),
+    "3.0": (1728, 576),
+}
+
+def find_closest_aspect_ratio(target_width, target_height):
+    target_ratio = target_width / target_height
+    closest_ratio = None
+    min_difference = float('inf')
+
+    for ratio_str, (width, height) in SD_XL_BASE_RATIOS.items():
+        ratio = width / height
+        difference = abs(target_ratio - ratio)
+
+        if difference < min_difference:
+            min_difference = difference
+            closest_ratio = ratio_str
+
+    return closest_ratio
+
+
+def resize_to_closest_aspect_ratio(image):
+    target_width, target_height = image.size
+    closest_ratio = find_closest_aspect_ratio(target_width, target_height)
+
+    # Get the dimensions from the closest aspect ratio in the dictionary
+    new_width, new_height = SD_XL_BASE_RATIOS[closest_ratio]
+
+    # Resize the image to the new dimensions while preserving the aspect ratio
+    resized_image = image.resize((new_width, new_height), Image.ANTIALIAS)
+
+    return resized_image
+
+
 ADAPTER_NAMES = [
     "TencentARC/t2i-adapter-canny-sdxl-1.0",
     "TencentARC/t2i-adapter-sketch-sdxl-1.0",
@@ -57,7 +115,7 @@ class LineartPreprocessor(Preprocessor):
         return self.model.to(device)
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
-        return self.model(image, detect_resolution=384, image_resolution=1024)
+        return self.model(image, detect_resolution=512, image_resolution=1024)
 
 
 class MidasPreprocessor(Preprocessor):
@@ -272,6 +330,8 @@ class Model:
 
         if apply_preprocess:
             image = self.preprocessor(image)
+
+        image = resize_to_closest_aspect_ratio(image)
 
         generator = torch.Generator(device=self.device).manual_seed(seed)
         out = self.pipe(
