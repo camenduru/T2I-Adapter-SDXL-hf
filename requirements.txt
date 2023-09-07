@@ -1,6 +1,6 @@
 accelerate==0.22.0
 controlnet_aux==0.0.7
-git+https://github.com/huggingface/diffusers@t2iadapterxl
+git+https://github.com/huggingface/diffusers@t2i-adapter-load-lora
 gradio==3.42.0
 openmim==0.3.9
 Pillow==10.0.0
