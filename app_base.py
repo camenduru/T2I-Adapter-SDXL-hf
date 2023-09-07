@@ -60,7 +60,7 @@ def create_demo(model: Model) -> gr.Blocks:
                         minimum=1,
                         maximum=Model.MAX_NUM_INFERENCE_STEPS,
                         step=1,
-                        value=30,
+                        value=25,
                     )
                     guidance_scale = gr.Slider(
                         label="Guidance scale",
