@@ -24,7 +24,7 @@ ADAPTER_NAMES = [
     "TencentARC/t2i-adapter-lineart-sdxl-1.0",
     "TencentARC/t2i-adapter-depth-midas-sdxl-1.0",
     "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0",
-    "TencentARC/t2i-adapter-recolor-sdxl-1.0",
+    # "TencentARC/t2i-adapter-recolor-sdxl-1.0",
 ]
 
 
