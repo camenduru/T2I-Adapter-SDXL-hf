@@ -97,7 +97,7 @@ def create_demo(model: Model) -> gr.Blocks:
                     apply_preprocess = gr.Checkbox(label="Apply preprocess", value=True)
                     negative_prompt = gr.Textbox(
                         label="Negative prompt",
-                        value="anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured",
+                        value="",
                     )
                     style = gr.Dropdown(choices=style_names, value=default_style_name, label="Style")
                     num_inference_steps = gr.Slider(
