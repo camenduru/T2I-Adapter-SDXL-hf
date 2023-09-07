@@ -71,7 +71,7 @@ def resize_to_closest_aspect_ratio(image):
     new_width, new_height = SD_XL_BASE_RATIOS[closest_ratio]
 
     # Resize the image to the new dimensions while preserving the aspect ratio
-    resized_image = image.resize((new_width, new_height), Image.ANTIALIAS)
+    resized_image = image.resize((new_width, new_height), PIL.Image.ANTIALIAS)
 
     return resized_image
 
