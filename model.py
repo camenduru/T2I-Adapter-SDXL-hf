@@ -202,6 +202,8 @@ class Model:
                 variant="fp16",
             ).to(self.device)
             self.pipe.enable_xformers_memory_efficient_attention()
+            self.pipe.load_lora_weights("stabilityai/stable-diffusion-xl-base-1.0", weight_name="sd_xl_offset_example-lora_1.0.safetensors")
+            pipe.fuse_lora(lora_scale=0.4)
         else:
             self.preprocessor = None  # type: ignore
             self.pipe = None
@@ -278,7 +280,7 @@ class Model:
             image=image,
             num_inference_steps=num_inference_steps,
             adapter_conditioning_scale=adapter_conditioning_scale,
-            cond_tau=cond_tau,
+            adapter_conditioning_factor=cond_tau,
             generator=generator,
             guidance_scale=guidance_scale,
         ).images[0]
