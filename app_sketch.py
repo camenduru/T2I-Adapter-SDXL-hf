@@ -6,57 +6,12 @@ import torch
 import torchvision.transforms.functional as TF
 
 from model import Model
-from utils import MAX_SEED, randomize_seed_fn
+from utils import MAX_SEED, randomize_seed_fn, styles, style_names, apply_style
+
 
 SKETCH_ADAPTER_NAME = "TencentARC/t2i-adapter-sketch-sdxl-1.0"
 
-style_list = [
-    {
-        "name": "Cinematic",
-        "prompt": "cinematic still {prompt} . emotional, harmonious, vignette, highly detailed, high budget, bokeh, cinemascope, moody, epic, gorgeous, film grain, grainy",
-        "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured",
-    },
-    {
-        "name": "3D Model",
-        "prompt": "professional 3d model {prompt} . octane render, highly detailed, volumetric, dramatic lighting",
-        "negative_prompt": "ugly, deformed, noisy, low poly, blurry, painting",
-    },
-    {
-        "name": "Anime",
-        "prompt": "anime artwork {prompt} . anime style, key visual, vibrant, studio anime,  highly detailed",
-        "negative_prompt": "photo, deformed, black and white, realism, disfigured, low contrast",
-    },
-    {
-        "name": "Digital Art",
-        "prompt": "concept art {prompt} . digital artwork, illustrative, painterly, matte painting, highly detailed",
-        "negative_prompt": "photo, photorealistic, realism, ugly",
-    },
-    {
-        "name": "Photographic",
-        "prompt": "cinematic photo {prompt} . 35mm photograph, film, bokeh, professional, 4k, highly detailed",
-        "negative_prompt": "drawing, painting, crayon, sketch, graphite, impressionist, noisy, blurry, soft, deformed, ugly",
-    },
-    {
-        "name": "Pixel art",
-        "prompt": "pixel-art {prompt} . low-res, blocky, pixel art style, 8-bit graphics",
-        "negative_prompt": "sloppy, messy, blurry, noisy, highly detailed, ultra textured, photo, realistic",
-    },
-    {
-        "name": "Fantasy art",
-        "prompt": "ethereal fantasy concept art of  {prompt} . magnificent, celestial, ethereal, painterly, epic, majestic, magical, fantasy art, cover art, dreamy",
-        "negative_prompt": "photographic, realistic, realism, 35mm film, dslr, cropped, frame, text, deformed, glitch, noise, noisy, off-center, deformed, cross-eyed, closed eyes, bad anatomy, ugly, disfigured, sloppy, duplicate, mutated, black and white",
-    },
-]
-
-styles = {k["name"]: (k["prompt"], k["negative_prompt"]) for k in style_list}
 default_style_name = "Photographic"
-default_style = styles[default_style_name]
-style_names = list(styles.keys())
-
-
-def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
-    p, n = styles.get(style_name, default_style)
-    return p.replace("{prompt}", positive), n + negative
 
 
 def create_demo(model: Model) -> gr.Blocks:
