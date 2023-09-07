@@ -57,7 +57,7 @@ styles = {k["name"]: (k["prompt"], k["negative_prompt"]) for k in style_list}
 style_names = list(styles.keys())
 
 def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
-    p, n = styles.get(style_name, default_style)
+    p, n = styles.get(style_name, "Photographic")
     return p.replace("{prompt}", positive), n + negative
 
 
