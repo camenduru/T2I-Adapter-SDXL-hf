@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
+import os
+
 import gradio as gr
 import PIL.Image
+from diffusers.utils import load_image
 
 from model import ADAPTER_NAMES, Model
 from utils import (
@@ -11,6 +14,8 @@ from utils import (
     apply_style,
     randomize_seed_fn,
 )
+
+CACHE_EXAMPLES = os.environ.get("CACHE_EXAMPLES") == "1"
 
 
 def create_demo(model: Model) -> gr.Blocks:
@@ -42,6 +47,61 @@ def create_demo(model: Model) -> gr.Blocks:
             seed=seed,
             apply_preprocess=apply_preprocess,
         )
+
+    def process_example(
+        image_url: str,
+        prompt: str,
+        adapter_name: str,
+        seed: int,
+        apply_preprocess: bool,
+    ) -> list[PIL.Image.Image]:
+        image = load_image(image_url)
+        return run(
+            image=image,
+            prompt=prompt,
+            negative_prompt="",
+            adapter_name=adapter_name,
+            seed=seed,
+            apply_preprocess=apply_preprocess,
+        )
+
+    examples = [
+        [
+            "assets/org_canny.jpg",
+            "Mystical fairy in real, magic, 4k picture, high quality",
+            "TencentARC/t2i-adapter-canny-sdxl-1.0",
+            0,
+            True,
+        ],
+        [
+            "assets/org_sketch.png",
+            "a robot, mount fuji in the background, 4k photo, highly detailed",
+            "TencentARC/t2i-adapter-sketch-sdxl-1.0",
+            0,
+            True,
+        ],
+        [
+            "assets/org_lin.jpg",
+            "Ice dragon roar, 4k photo",
+            "TencentARC/t2i-adapter-lineart-sdxl-1.0",
+            0,
+            True,
+        ],
+        [
+            "assets/org_mid.jpg",
+            "A photo of a room, 4k photo, highly detailed",
+            "TencentARC/t2i-adapter-depth-midas-sdxl-1.0",
+            0,
+            True,
+        ],
+        [
+            "assets/org_zoe.jpg",
+            "A photo of a orchid, 4k photo, highly detailed",
+            "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0",
+            0,
+            True,
+        ],
+    ]
 
     with gr.Blocks() as demo:
         with gr.Row():
@@ -93,6 +153,20 @@ def create_demo(model: Model) -> gr.Blocks:
                     randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
             with gr.Column():
                 result = gr.Gallery(label="Result", columns=2, height=600, object_fit="scale-down", show_label=False)
+
+        gr.Examples(
+            examples=examples,
+            inputs=[
+                image,
+                prompt,
+                adapter_name,
+                seed,
+                apply_preprocess,
+            ],
+            outputs=result,
+            fn=process_example,
+            cache_examples=CACHE_EXAMPLES,
+        )
 
         inputs = [
             image,
