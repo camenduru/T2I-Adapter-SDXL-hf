@@ -256,9 +256,6 @@ def download_all_adapters():
     gc.collect()
 
 
-download_all_adapters()
-
-
 class Model:
     MAX_NUM_INFERENCE_STEPS = 50
 

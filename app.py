@@ -7,7 +7,7 @@ import torch
 
 from app_base import create_demo as create_demo_base
 from app_sketch import create_demo as create_demo_sketch
-from model import ADAPTER_NAMES, Model
+from model import ADAPTER_NAMES, Model, download_all_adapters
 
 DESCRIPTION = "# T2I-Adapter-SDXL"
 
@@ -15,6 +15,7 @@ if not torch.cuda.is_available():
     DESCRIPTION += "\n<p>Running on CPU 🥶 This demo does not work on CPU.</p>"
 
 
+download_all_adapters()
 model = Model(ADAPTER_NAMES[0])
 
 
