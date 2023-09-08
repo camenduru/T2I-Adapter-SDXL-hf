@@ -122,6 +122,16 @@ def create_demo(model: Model) -> gr.Blocks:
             0,
             True,
         ],
+        [
+            "assets/people.jpg",
+            "A couple, 4k photo, highly detailed",
+            "openpose",
+            "Photographic",
+            5.0,
+            1.0,
+            0,
+            True,
+        ],
     ]
 
     with gr.Blocks() as demo:

@@ -2,12 +2,14 @@ import gc
 import os
 from abc import ABC, abstractmethod
 
+import numpy as np
 import PIL.Image
 import torch
 from controlnet_aux import (
     CannyDetector,
     LineartDetector,
     MidasDetector,
+    OpenposeDetector,
     PidiNetDetector,
     ZoeDetector,
 )
@@ -83,6 +85,7 @@ ADAPTER_REPO_IDS = {
     "lineart": "TencentARC/t2i-adapter-lineart-sdxl-1.0",
     "depth-midas": "TencentARC/t2i-adapter-depth-midas-sdxl-1.0",
     "depth-zoe": "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0",
+    "openpose": "TencentARC/t2i-adapter-openpose-sdxl-1.0",
     # "recolor": "TencentARC/t2i-adapter-recolor-sdxl-1.0",
 }
 ADAPTER_NAMES = list(ADAPTER_REPO_IDS.keys())
@@ -114,7 +117,8 @@ class LineartPreprocessor(Preprocessor):
         self.model = LineartDetector.from_pretrained("lllyasviel/Annotators")
 
     def to(self, device: torch.device | str) -> Preprocessor:
-        return self.model.to(device)
+        self.model.to(device)
+        return self
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return self.model(image, detect_resolution=384, image_resolution=1024)
@@ -127,10 +131,26 @@ class MidasPreprocessor(Preprocessor):
         )
 
     def to(self, device: torch.device | str) -> Preprocessor:
-        return self.model.to(device)
+        self.model.to(device)
+        return self
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return self.model(image, detect_resolution=512, image_resolution=1024)
+
+
+class OpenposePreprocessor(Preprocessor):
+    def __init__(self):
+        self.model = OpenposeDetector.from_pretrained("lllyasviel/Annotators")
+
+    def to(self, device: torch.device | str) -> Preprocessor:
+        self.model.to(device)
+        return self
+
+    def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
+        out = self.model(image, detect_resolution=512, image_resolution=1024)
+        out = np.array(out)[:, :, ::-1]
+        out = PIL.Image.fromarray(np.uint8(out))
+        return out
 
 
 class PidiNetPreprocessor(Preprocessor):
@@ -138,7 +158,8 @@ class PidiNetPreprocessor(Preprocessor):
         self.model = PidiNetDetector.from_pretrained("lllyasviel/Annotators")
 
     def to(self, device: torch.device | str) -> Preprocessor:
-        return self.model.to(device)
+        self.model.to(device)
+        return self
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return self.model(image, detect_resolution=512, image_resolution=1024, apply_filter=True)
@@ -159,7 +180,8 @@ class ZoePreprocessor(Preprocessor):
         )
 
     def to(self, device: torch.device | str) -> Preprocessor:
-        return self.model.to(device)
+        self.model.to(device)
+        return self
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
         return self.model(image, gamma_corrected=True, image_resolution=1024)
@@ -175,6 +197,7 @@ if PRELOAD_PREPROCESSORS_IN_GPU_MEMORY:
         "lineart": LineartPreprocessor().to(device),
         "depth-midas": MidasPreprocessor().to(device),
         "depth-zoe": ZoePreprocessor().to(device),
+        "openpose": OpenposePreprocessor().to(device),
         "recolor": RecolorPreprocessor().to(device),
     }
 
@@ -188,6 +211,7 @@ elif PRELOAD_PREPROCESSORS_IN_CPU_MEMORY:
         "lineart": LineartPreprocessor(),
         "depth-midas": MidasPreprocessor(),
         "depth-zoe": ZoePreprocessor(),
+        "openpose": OpenposePreprocessor(),
         "recolor": RecolorPreprocessor(),
     }
 
@@ -207,6 +231,8 @@ else:
             return MidasPreprocessor()
         elif adapter_name == "depth-zoe":
             return ZoePreprocessor()
+        elif adapter_name == "openpose":
+            return OpenposePreprocessor()
         elif adapter_name == "recolor":
             return RecolorPreprocessor()
         else:
