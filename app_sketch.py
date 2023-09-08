@@ -61,9 +61,7 @@ def create_demo(model: Model) -> gr.Blocks:
                         brush_radius=4,
                         height=600,
                     )
-                    with gr.Row():
-                        adapter_name = gr.Dropdown(label="Adapter name", choices=ADAPTER_NAMES, value=ADAPTER_NAMES[0])
-                        style = gr.Dropdown(label="Style", choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME)
+                    style = gr.Dropdown(label="Style", choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME)
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
                     negative_prompt = gr.Textbox(label="Negative prompt")
