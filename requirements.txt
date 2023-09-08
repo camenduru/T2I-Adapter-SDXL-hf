@@ -1,12 +1,12 @@
 accelerate==0.22.0
 controlnet_aux==0.0.7
 git+https://github.com/huggingface/diffusers@t2i-adapter-load-lora
-gradio==3.42.0
+gradio==3.43.1
 openmim==0.3.9
 Pillow==10.0.0
 safetensors==0.3.3
 timm==0.6.12
 torch==2.0.1
 torchvision==0.15.2
-transformers==4.33.0
+transformers==4.33.1
 xformers==0.0.20
