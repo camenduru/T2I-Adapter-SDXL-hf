@@ -14,8 +14,6 @@ from utils import (
     randomize_seed_fn,
 )
 
-SKETCH_ADAPTER_NAME = "TencentARC/t2i-adapter-sketch-sdxl-1.0"
-
 
 def create_demo(model: Model) -> gr.Blocks:
     def run(
@@ -40,7 +38,7 @@ def create_demo(model: Model) -> gr.Blocks:
             image=image,
             prompt=prompt,
             negative_prompt=negative_prompt,
-            adapter_name=SKETCH_ADAPTER_NAME,
+            adapter_name="sketch",
             num_inference_steps=num_steps,
             guidance_scale=guidance_scale,
             adapter_conditioning_scale=adapter_conditioning_scale,
@@ -160,6 +158,6 @@ def create_demo(model: Model) -> gr.Blocks:
 
 
 if __name__ == "__main__":
-    model = Model(SKETCH_ADAPTER_NAME)
+    model = Model("sketch")
     demo = create_demo(model)
     demo.queue(max_size=20).launch()
