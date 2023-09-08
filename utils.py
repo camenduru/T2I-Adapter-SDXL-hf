@@ -9,7 +9,7 @@ style_list = [
     {
         "name": "(No style)",
         "prompt": "{prompt}",
-        "negative_prompt": "anime, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured",
+        "negative_prompt": "",
     },
     {
         "name": "Cinematic",
