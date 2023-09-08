@@ -132,6 +132,26 @@ def create_demo(model: Model) -> gr.Blocks:
             0,
             True,
         ],
+        [
+            "assets/depth-midas-image.png",
+            "stormtrooper lecture, 4k photo, highly detailed",
+            "depth-midas",
+            "Photographic",
+            5.0,
+            1.0,
+            0,
+            False,
+        ],
+        [
+            "assets/openpose-image.png",
+            "spiderman, 4k photo, highly detailed",
+            "openpose",
+            "Photographic",
+            5.0,
+            1.0,
+            0,
+            False,
+        ],
     ]
 
     with gr.Blocks() as demo:
