@@ -51,9 +51,7 @@ def create_demo(model: Model) -> gr.Blocks:
     def process_example(
         image_url: str,
         prompt: str,
-        negative_prompt: str,
         adapter_name: str,
-        style_name: str,
         guidance_scale: float,
         adapter_conditioning_scale: float,
         seed: int,
@@ -63,9 +61,9 @@ def create_demo(model: Model) -> gr.Blocks:
         return run(
             image=image,
             prompt=prompt,
-            negative_prompt=negative_prompt,
+            negative_prompt="extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             adapter_name=adapter_name,
-            style_name=style_name,
+            style_name="(No style)",
             guidance_scale=guidance_scale,
             adapter_conditioning_scale=adapter_conditioning_scale,
             seed=seed,
@@ -76,9 +74,7 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/org_canny.jpg",
             "Mystical fairy in real, magic, 4k picture, high quality",
-            "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             "canny",
-            "(No style)",
             7.5,
             0.75,
             42,
@@ -87,9 +83,7 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/org_sketch.png",
             "a robot, mount fuji in the background, 4k photo, highly detailed",
-            "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             "sketch",
-            "(No style)",
             7.5,
             1.0,
             42,
@@ -98,9 +92,7 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/org_lin.jpg",
             "Ice dragon roar, 4k photo",
-            "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             "lineart",
-            "(No style)",
             7.5,
             0.8,
             42,
@@ -109,9 +101,7 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/org_mid.jpg",
             "A photo of a room, 4k photo, highly detailed",
-            "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             "depth-midas",
-            "(No style)",
             7.5,
             1.0,
             42,
@@ -120,9 +110,7 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/org_zoe.jpg",
             "A photo of a orchid, 4k photo, highly detailed",
-            "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             "depth-zoe",
-            "(No style)",
             5.0,
             1.0,
             42,
@@ -131,9 +119,7 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/people.jpg",
             "A couple, 4k photo, highly detailed",
-            "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             "openpose",
-            "(No style)",
             5.0,
             1.0,
             42,
@@ -142,9 +128,7 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/depth-midas-image.png",
             "stormtrooper lecture, 4k photo, highly detailed",
-            "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             "depth-midas",
-            "(No style)",
             7.5,
             1.0,
             42,
@@ -153,9 +137,7 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/openpose-image.png",
             "spiderman, 4k photo, highly detailed",
-            "extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
             "openpose",
-            "(No style)",
             5.0,
             1.0,
             42,
@@ -175,7 +157,10 @@ def create_demo(model: Model) -> gr.Blocks:
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
                     apply_preprocess = gr.Checkbox(label="Apply preprocess", value=True)
-                    negative_prompt = gr.Textbox(label="Negative prompt", value=" extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured")
+                    negative_prompt = gr.Textbox(
+                        label="Negative prompt",
+                        value=" extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
+                    )
                     num_inference_steps = gr.Slider(
                         label="Number of steps",
                         minimum=1,
@@ -221,9 +206,7 @@ def create_demo(model: Model) -> gr.Blocks:
             inputs=[
                 image,
                 prompt,
-                negative_prompt,
                 adapter_name,
-                style,
                 guidance_scale,
                 adapter_conditioning_scale,
                 seed,
