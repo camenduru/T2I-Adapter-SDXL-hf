@@ -65,7 +65,10 @@ def create_demo(model: Model) -> gr.Blocks:
                     style = gr.Dropdown(label="Style", choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME)
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
-                    negative_prompt = gr.Textbox(label="Negative prompt")
+                    negative_prompt = gr.Textbox(
+                        label="Negative prompt",
+                        value=" extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured",
+                    )
                     num_steps = gr.Slider(
                         label="Number of steps",
                         minimum=1,
