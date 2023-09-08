@@ -66,7 +66,7 @@ def create_demo(model: Model) -> gr.Blocks:
                     prompt = gr.Textbox(label="Prompt")
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
-                    style = gr.Dropdown(choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME, label="Style")
+                    style = gr.Dropdown(label="Style", choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME)
                     negative_prompt = gr.Textbox(label="Negative prompt")
                     num_steps = gr.Slider(
                         label="Number of steps",

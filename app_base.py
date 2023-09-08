@@ -53,11 +53,8 @@ def create_demo(model: Model) -> gr.Blocks:
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
                     apply_preprocess = gr.Checkbox(label="Apply preprocess", value=True)
-                    negative_prompt = gr.Textbox(
-                        label="Negative prompt",
-                        value="",
-                    )
-                    style = gr.Dropdown(choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME, label="Style")
+                    negative_prompt = gr.Textbox(label="Negative prompt")
+                    style = gr.Dropdown(label="Style", choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME)
                     num_inference_steps = gr.Slider(
                         label="Number of steps",
                         minimum=1,
