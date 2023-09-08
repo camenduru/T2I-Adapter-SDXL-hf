@@ -61,6 +61,7 @@ def create_demo(model: Model) -> gr.Blocks:
                         brush_radius=4,
                         height=600,
                     )
+                    prompt = gr.Textbox(label="Prompt")
                     style = gr.Dropdown(label="Style", choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME)
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
