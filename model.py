@@ -47,10 +47,11 @@ SD_XL_BASE_RATIOS = {
     "3.0": (1728, 576),
 }
 
+
 def find_closest_aspect_ratio(target_width, target_height):
     target_ratio = target_width / target_height
     closest_ratio = None
-    min_difference = float('inf')
+    min_difference = float("inf")
 
     for ratio_str, (width, height) in SD_XL_BASE_RATIOS.items():
         ratio = width / height
@@ -260,7 +261,9 @@ class Model:
                 variant="fp16",
             ).to(self.device)
             self.pipe.enable_xformers_memory_efficient_attention()
-            self.pipe.load_lora_weights("stabilityai/stable-diffusion-xl-base-1.0", weight_name="sd_xl_offset_example-lora_1.0.safetensors")
+            self.pipe.load_lora_weights(
+                "stabilityai/stable-diffusion-xl-base-1.0", weight_name="sd_xl_offset_example-lora_1.0.safetensors"
+            )
             self.pipe.fuse_lora(lora_scale=0.4)
         else:
             self.preprocessor = None  # type: ignore

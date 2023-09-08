@@ -6,12 +6,15 @@ import torch
 import torchvision.transforms.functional as TF
 
 from model import Model
-from utils import MAX_SEED, randomize_seed_fn, styles, style_names, apply_style
-
+from utils import (
+    DEFAULT_STYLE_NAME,
+    MAX_SEED,
+    STYLE_NAMES,
+    apply_style,
+    randomize_seed_fn,
+)
 
 SKETCH_ADAPTER_NAME = "TencentARC/t2i-adapter-sketch-sdxl-1.0"
-
-default_style_name = "Photographic"
 
 
 def create_demo(model: Model) -> gr.Blocks:
@@ -19,7 +22,7 @@ def create_demo(model: Model) -> gr.Blocks:
         image: PIL.Image.Image,
         prompt: str,
         negative_prompt: str,
-        style_name: str = default_style_name,
+        style_name: str = DEFAULT_STYLE_NAME,
         num_steps: int = 25,
         guidance_scale: float = 5,
         adapter_conditioning_scale: float = 0.8,
@@ -63,7 +66,7 @@ def create_demo(model: Model) -> gr.Blocks:
                     prompt = gr.Textbox(label="Prompt")
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
-                    style = gr.Dropdown(choices=style_names, value=default_style_name, label="Style")
+                    style = gr.Dropdown(choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME, label="Style")
                     negative_prompt = gr.Textbox(label="Negative prompt")
                     num_steps = gr.Slider(
                         label="Number of steps",

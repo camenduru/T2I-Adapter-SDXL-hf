@@ -44,20 +44,22 @@ style_list = [
     {
         "name": "Neonpunk",
         "prompt": "neonpunk style {prompt} . cyberpunk, vaporwave, neon, vibes, vibrant, stunningly beautiful, crisp, detailed, sleek, ultramodern, magenta highlights, dark purple shadows, high contrast, cinematic, ultra detailed, intricate, professional",
-        "negative_prompt": "painting, drawing, illustration, glitch, deformed, mutated, cross-eyed, ugly, disfigured"
+        "negative_prompt": "painting, drawing, illustration, glitch, deformed, mutated, cross-eyed, ugly, disfigured",
     },
     {
         "name": "Manga",
         "prompt": "manga style {prompt} . vibrant, high-energy, detailed, iconic, Japanese comic style",
-        "negative_prompt": "ugly, deformed, noisy, blurry, low contrast, realism, photorealistic, Western comic style"
+        "negative_prompt": "ugly, deformed, noisy, blurry, low contrast, realism, photorealistic, Western comic style",
     },
 ]
 
 styles = {k["name"]: (k["prompt"], k["negative_prompt"]) for k in style_list}
-style_names = list(styles.keys())
+STYLE_NAMES = list(styles.keys())
+DEFAULT_STYLE_NAME = "Photographic"
+
 
 def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
-    p, n = styles.get(style_name, "Photographic")
+    p, n = styles.get(style_name, styles[DEFAULT_STYLE_NAME])
     return p.replace("{prompt}", positive), n + negative
 
 

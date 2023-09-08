@@ -4,10 +4,13 @@ import gradio as gr
 import PIL.Image
 
 from model import ADAPTER_NAMES, Model
-from utils import MAX_SEED, randomize_seed_fn, styles, style_names, apply_style
-
-
-default_style_name = "Photographic"
+from utils import (
+    DEFAULT_STYLE_NAME,
+    MAX_SEED,
+    STYLE_NAMES,
+    apply_style,
+    randomize_seed_fn,
+)
 
 
 def create_demo(model: Model) -> gr.Blocks:
@@ -16,7 +19,7 @@ def create_demo(model: Model) -> gr.Blocks:
         prompt: str,
         negative_prompt: str,
         adapter_name: str,
-        style_name: str = default_style_name,
+        style_name: str = DEFAULT_STYLE_NAME,
         num_inference_steps: int = 30,
         guidance_scale: float = 5.0,
         adapter_conditioning_scale: float = 1.0,
@@ -26,7 +29,7 @@ def create_demo(model: Model) -> gr.Blocks:
         progress=gr.Progress(track_tqdm=True),
     ) -> list[PIL.Image.Image]:
         prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
-        
+
         return model.run(
             image=image,
             prompt=prompt,
@@ -54,7 +57,7 @@ def create_demo(model: Model) -> gr.Blocks:
                         label="Negative prompt",
                         value="",
                     )
-                    style = gr.Dropdown(choices=style_names, value=default_style_name, label="Style")
+                    style = gr.Dropdown(choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME, label="Style")
                     num_inference_steps = gr.Slider(
                         label="Number of steps",
                         minimum=1,
