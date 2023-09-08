@@ -187,7 +187,7 @@ class ZoePreprocessor(Preprocessor):
         return self.model(image, gamma_corrected=True, image_resolution=1024)
 
 
-PRELOAD_PREPROCESSORS_IN_GPU_MEMORY = os.getenv("PRELOAD_PREPROCESSORS_IN_GPU_MEMORY", "1") == "1"
+PRELOAD_PREPROCESSORS_IN_GPU_MEMORY = os.getenv("PRELOAD_PREPROCESSORS_IN_GPU_MEMORY", "0") == "1"
 PRELOAD_PREPROCESSORS_IN_CPU_MEMORY = os.getenv("PRELOAD_PREPROCESSORS_IN_CPU_MEMORY", "0") == "1"
 if PRELOAD_PREPROCESSORS_IN_GPU_MEMORY:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
