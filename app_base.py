@@ -160,9 +160,7 @@ def create_demo(model: Model) -> gr.Blocks:
                 with gr.Group():
                     image = gr.Image(label="Input image", type="pil", height=600)
                     prompt = gr.Textbox(label="Prompt")
-                    with gr.Row():
-                        adapter_name = gr.Dropdown(label="Adapter name", choices=ADAPTER_NAMES, value=ADAPTER_NAMES[0])
-                        style = gr.Dropdown(label="Style", choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME)
+                    style = gr.Dropdown(label="Style", choices=STYLE_NAMES, value=DEFAULT_STYLE_NAME)
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
                     apply_preprocess = gr.Checkbox(label="Apply preprocess", value=True)
