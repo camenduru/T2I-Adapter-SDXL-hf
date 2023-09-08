@@ -48,9 +48,9 @@ SD_XL_BASE_RATIOS = {
 }
 
 
-def find_closest_aspect_ratio(target_width, target_height):
+def find_closest_aspect_ratio(target_width: int, target_height: int) -> str:
     target_ratio = target_width / target_height
-    closest_ratio = None
+    closest_ratio = ""
     min_difference = float("inf")
 
     for ratio_str, (width, height) in SD_XL_BASE_RATIOS.items():
@@ -64,7 +64,7 @@ def find_closest_aspect_ratio(target_width, target_height):
     return closest_ratio
 
 
-def resize_to_closest_aspect_ratio(image):
+def resize_to_closest_aspect_ratio(image: PIL.Image.Image) -> PIL.Image.Image:
     target_width, target_height = image.size
     closest_ratio = find_closest_aspect_ratio(target_width, target_height)
 
