@@ -175,7 +175,7 @@ def create_demo(model: Model) -> gr.Blocks:
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
                     apply_preprocess = gr.Checkbox(label="Apply preprocess", value=True)
-                    negative_prompt = gr.Textbox(label="Negative prompt")
+                    negative_prompt = gr.Textbox(label="Negative prompt", value=" extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured")
                     num_inference_steps = gr.Slider(
                         label="Number of steps",
                         minimum=1,
