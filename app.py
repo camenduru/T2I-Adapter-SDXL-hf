@@ -33,4 +33,4 @@ with gr.Blocks(css="style.css") as demo:
             create_demo_sketch(model)
 
 if __name__ == "__main__":
-    demo.queue(max_size=20).launch()
+    demo.queue(max_size=20).launch(share=True)
