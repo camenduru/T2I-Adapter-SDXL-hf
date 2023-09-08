@@ -117,7 +117,7 @@ class LineartPreprocessor(Preprocessor):
         return self.model.to(device)
 
     def __call__(self, image: PIL.Image.Image) -> PIL.Image.Image:
-        return self.model(image, detect_resolution=512, image_resolution=1024)
+        return self.model(image, detect_resolution=384, image_resolution=1024)
 
 
 class MidasPreprocessor(Preprocessor):
