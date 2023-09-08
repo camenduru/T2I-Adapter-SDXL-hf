@@ -69,35 +69,35 @@ def create_demo(model: Model) -> gr.Blocks:
         [
             "assets/org_canny.jpg",
             "Mystical fairy in real, magic, 4k picture, high quality",
-            "TencentARC/t2i-adapter-canny-sdxl-1.0",
+            "canny",
             0,
             True,
         ],
         [
             "assets/org_sketch.png",
             "a robot, mount fuji in the background, 4k photo, highly detailed",
-            "TencentARC/t2i-adapter-sketch-sdxl-1.0",
+            "sketch",
             0,
             True,
         ],
         [
             "assets/org_lin.jpg",
             "Ice dragon roar, 4k photo",
-            "TencentARC/t2i-adapter-lineart-sdxl-1.0",
+            "lineart",
             0,
             True,
         ],
         [
             "assets/org_mid.jpg",
             "A photo of a room, 4k photo, highly detailed",
-            "TencentARC/t2i-adapter-depth-midas-sdxl-1.0",
+            "depth-midas",
             0,
             True,
         ],
         [
             "assets/org_zoe.jpg",
             "A photo of a orchid, 4k photo, highly detailed",
-            "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0",
+            "depth-zoe",
             0,
             True,
         ],
@@ -109,7 +109,7 @@ def create_demo(model: Model) -> gr.Blocks:
                 with gr.Group():
                     image = gr.Image(label="Input image", type="pil", height=600)
                     prompt = gr.Textbox(label="Prompt")
-                    adapter_name = gr.Dropdown(label="Adapter", choices=ADAPTER_NAMES, value=ADAPTER_NAMES[0])
+                    adapter_name = gr.Dropdown(label="Adapter name", choices=ADAPTER_NAMES, value=ADAPTER_NAMES[0])
                     run_button = gr.Button("Run")
                 with gr.Accordion("Advanced options", open=False):
                     apply_preprocess = gr.Checkbox(label="Apply preprocess", value=True)

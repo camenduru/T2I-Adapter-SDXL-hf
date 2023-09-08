@@ -77,14 +77,15 @@ def resize_to_closest_aspect_ratio(image: PIL.Image.Image) -> PIL.Image.Image:
     return resized_image
 
 
-ADAPTER_NAMES = [
-    "TencentARC/t2i-adapter-canny-sdxl-1.0",
-    "TencentARC/t2i-adapter-sketch-sdxl-1.0",
-    "TencentARC/t2i-adapter-lineart-sdxl-1.0",
-    "TencentARC/t2i-adapter-depth-midas-sdxl-1.0",
-    "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0",
-    # "TencentARC/t2i-adapter-recolor-sdxl-1.0",
-]
+ADAPTER_REPO_IDS = {
+    "canny": "TencentARC/t2i-adapter-canny-sdxl-1.0",
+    "sketch": "TencentARC/t2i-adapter-sketch-sdxl-1.0",
+    "lineart": "TencentARC/t2i-adapter-lineart-sdxl-1.0",
+    "depth-midas": "TencentARC/t2i-adapter-depth-midas-sdxl-1.0",
+    "depth-zoe": "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0",
+    # "recolor": "TencentARC/t2i-adapter-recolor-sdxl-1.0",
+}
+ADAPTER_NAMES = list(ADAPTER_REPO_IDS.keys())
 
 
 class Preprocessor(ABC):
@@ -169,12 +170,12 @@ PRELOAD_PREPROCESSORS_IN_CPU_MEMORY = os.getenv("PRELOAD_PREPROCESSORS_IN_CPU_ME
 if PRELOAD_PREPROCESSORS_IN_GPU_MEMORY:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     preprocessors_gpu: dict[str, Preprocessor] = {
-        "TencentARC/t2i-adapter-canny-sdxl-1.0": CannyPreprocessor().to(device),
-        "TencentARC/t2i-adapter-sketch-sdxl-1.0": PidiNetPreprocessor().to(device),
-        "TencentARC/t2i-adapter-lineart-sdxl-1.0": LineartPreprocessor().to(device),
-        "TencentARC/t2i-adapter-depth-midas-sdxl-1.0": MidasPreprocessor().to(device),
-        "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0": ZoePreprocessor().to(device),
-        "TencentARC/t2i-adapter-recolor-sdxl-1.0": RecolorPreprocessor().to(device),
+        "canny": CannyPreprocessor().to(device),
+        "sketch": PidiNetPreprocessor().to(device),
+        "lineart": LineartPreprocessor().to(device),
+        "depth-midas": MidasPreprocessor().to(device),
+        "depth-zoe": ZoePreprocessor().to(device),
+        "recolor": RecolorPreprocessor().to(device),
     }
 
     def get_preprocessor(adapter_name: str) -> Preprocessor:
@@ -182,12 +183,12 @@ if PRELOAD_PREPROCESSORS_IN_GPU_MEMORY:
 
 elif PRELOAD_PREPROCESSORS_IN_CPU_MEMORY:
     preprocessors_cpu: dict[str, Preprocessor] = {
-        "TencentARC/t2i-adapter-canny-sdxl-1.0": CannyPreprocessor(),
-        "TencentARC/t2i-adapter-sketch-sdxl-1.0": PidiNetPreprocessor(),
-        "TencentARC/t2i-adapter-lineart-sdxl-1.0": LineartPreprocessor(),
-        "TencentARC/t2i-adapter-depth-midas-sdxl-1.0": MidasPreprocessor(),
-        "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0": ZoePreprocessor(),
-        "TencentARC/t2i-adapter-recolor-sdxl-1.0": RecolorPreprocessor(),
+        "canny": CannyPreprocessor(),
+        "sketch": PidiNetPreprocessor(),
+        "lineart": LineartPreprocessor(),
+        "depth-midas": MidasPreprocessor(),
+        "depth-zoe": ZoePreprocessor(),
+        "recolor": RecolorPreprocessor(),
     }
 
     def get_preprocessor(adapter_name: str) -> Preprocessor:
@@ -196,17 +197,17 @@ elif PRELOAD_PREPROCESSORS_IN_CPU_MEMORY:
 else:
 
     def get_preprocessor(adapter_name: str) -> Preprocessor:
-        if adapter_name == "TencentARC/t2i-adapter-canny-sdxl-1.0":
+        if adapter_name == "canny":
             return CannyPreprocessor()
-        elif adapter_name == "TencentARC/t2i-adapter-sketch-sdxl-1.0":
+        elif adapter_name == "sketch":
             return PidiNetPreprocessor()
-        elif adapter_name == "TencentARC/t2i-adapter-lineart-sdxl-1.0":
+        elif adapter_name == "lineart":
             return LineartPreprocessor()
-        elif adapter_name == "TencentARC/t2i-adapter-depth-midas-sdxl-1.0":
+        elif adapter_name == "depth-midas":
             return MidasPreprocessor()
-        elif adapter_name == "TencentARC/t2i-adapter-depth-zoe-sdxl-1.0":
+        elif adapter_name == "depth-zoe":
             return ZoePreprocessor()
-        elif adapter_name == "TencentARC/t2i-adapter-recolor-sdxl-1.0":
+        elif adapter_name == "recolor":
             return RecolorPreprocessor()
         else:
             raise ValueError(f"Adapter name must be one of {ADAPTER_NAMES}")
@@ -222,7 +223,7 @@ else:
 def download_all_adapters():
     for adapter_name in ADAPTER_NAMES:
         T2IAdapter.from_pretrained(
-            adapter_name,
+            ADAPTER_REPO_IDS[adapter_name],
             torch_dtype=torch.float16,
             varient="fp16",
         )
@@ -248,7 +249,7 @@ class Model:
 
             model_id = "stabilityai/stable-diffusion-xl-base-1.0"
             adapter = T2IAdapter.from_pretrained(
-                adapter_name,
+                ADAPTER_REPO_IDS[adapter_name],
                 torch_dtype=torch.float16,
                 varient="fp16",
             ).to(self.device)
@@ -292,7 +293,7 @@ class Model:
         if adapter_name == self.adapter_name:
             return
         self.pipe.adapter = T2IAdapter.from_pretrained(
-            adapter_name,
+            ADAPTER_REPO_IDS[adapter_name],
             torch_dtype=torch.float16,
             varient="fp16",
         ).to(self.device)
