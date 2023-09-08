@@ -317,7 +317,7 @@ class Model:
         num_inference_steps: int = 30,
         guidance_scale: float = 5.0,
         adapter_conditioning_scale: float = 1.0,
-        cond_tau: float = 1.0,
+        adapter_conditioning_factor: float = 1.0,
         seed: int = 0,
         apply_preprocess: bool = True,
     ) -> list[PIL.Image.Image]:
@@ -344,7 +344,7 @@ class Model:
             image=image,
             num_inference_steps=num_inference_steps,
             adapter_conditioning_scale=adapter_conditioning_scale,
-            adapter_conditioning_factor=cond_tau,
+            adapter_conditioning_factor=adapter_conditioning_factor,
             generator=generator,
             guidance_scale=guidance_scale,
         ).images[0]

@@ -26,7 +26,7 @@ def create_demo(model: Model) -> gr.Blocks:
         num_steps: int = 25,
         guidance_scale: float = 5,
         adapter_conditioning_scale: float = 0.8,
-        cond_tau: float = 0.8,
+        adapter_conditioning_factor: float = 0.8,
         seed: int = 0,
         progress=gr.Progress(track_tqdm=True),
     ) -> PIL.Image.Image:
@@ -44,7 +44,7 @@ def create_demo(model: Model) -> gr.Blocks:
             num_inference_steps=num_steps,
             guidance_scale=guidance_scale,
             adapter_conditioning_scale=adapter_conditioning_scale,
-            cond_tau=cond_tau,
+            adapter_conditioning_factor=adapter_conditioning_factor,
             seed=seed,
             apply_preprocess=False,
         )[1]
@@ -83,14 +83,15 @@ def create_demo(model: Model) -> gr.Blocks:
                         value=5,
                     )
                     adapter_conditioning_scale = gr.Slider(
-                        label="Adapter Conditioning Scale",
+                        label="Adapter conditioning scale",
                         minimum=0.5,
                         maximum=1,
                         step=0.1,
                         value=0.8,
                     )
-                    cond_tau = gr.Slider(
-                        label="Fraction of timesteps for which adapter should be applied",
+                    adapter_conditioning_factor = gr.Slider(
+                        label="Adapter conditioning factor",
+                        info="Fraction of timesteps for which adapter should be applied",
                         minimum=0.5,
                         maximum=1,
                         step=0.1,
@@ -115,7 +116,7 @@ def create_demo(model: Model) -> gr.Blocks:
             num_steps,
             guidance_scale,
             adapter_conditioning_scale,
-            cond_tau,
+            adapter_conditioning_factor,
             seed,
         ]
         prompt.submit(

@@ -28,7 +28,7 @@ def create_demo(model: Model) -> gr.Blocks:
         num_inference_steps: int = 30,
         guidance_scale: float = 5.0,
         adapter_conditioning_scale: float = 1.0,
-        cond_tau: float = 1.0,
+        adapter_conditioning_factor: float = 1.0,
         seed: int = 0,
         apply_preprocess: bool = True,
         progress=gr.Progress(track_tqdm=True),
@@ -43,7 +43,7 @@ def create_demo(model: Model) -> gr.Blocks:
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
             adapter_conditioning_scale=adapter_conditioning_scale,
-            cond_tau=cond_tau,
+            adapter_conditioning_factor=adapter_conditioning_factor,
             seed=seed,
             apply_preprocess=apply_preprocess,
         )
@@ -130,14 +130,15 @@ def create_demo(model: Model) -> gr.Blocks:
                         value=5.0,
                     )
                     adapter_conditioning_scale = gr.Slider(
-                        label="Adapter Conditioning Scale",
+                        label="Adapter conditioning scale",
                         minimum=0.5,
                         maximum=1,
                         step=0.1,
                         value=1.0,
                     )
-                    cond_tau = gr.Slider(
-                        label="Fraction of timesteps for which adapter should be applied",
+                    adapter_conditioning_factor = gr.Slider(
+                        label="Adapter conditioning factor",
+                        info="Fraction of timesteps for which adapter should be applied",
                         minimum=0.5,
                         maximum=1.0,
                         step=0.1,
@@ -177,7 +178,7 @@ def create_demo(model: Model) -> gr.Blocks:
             num_inference_steps,
             guidance_scale,
             adapter_conditioning_scale,
-            cond_tau,
+            adapter_conditioning_factor,
             seed,
             apply_preprocess,
         ]
